@@ -2,7 +2,6 @@ import streamlit as st
 import re
 import secrets
 import string
-from zxcvbn import zxcvbn
 
 class PasswordAnalyzer:
     @staticmethod
@@ -49,14 +48,9 @@ class PasswordAnalyzer:
         else:
             strength_level = "Very Strong"
         
-        # Advanced strength analysis using zxcvbn
-        zxcvbn_result = zxcvbn.password_strength(password)
-        
         return {
             'basic_strength_level': strength_level,
             'basic_strength_score': strength_score,
-            'zxcvbn_score': zxcvbn_result['score'],
-            'zxcvbn_feedback': zxcvbn_result['feedback'],
             'character_stats': {
                 'uppercase': has_uppercase,
                 'lowercase': has_lowercase,
@@ -139,12 +133,9 @@ def main():
             color = strength_levels.get(analysis['basic_strength_level'], "red")
             
             # Display strength analysis
-            st.markdown(f"*Strength Level:* <span style='color:{color}'>{analysis['basic_strength_level']}</span>", 
+            st.markdown(f"**Strength Level:** <span style='color:{color}'>{analysis['basic_strength_level']}</span>", 
                         unsafe_allow_html=True)
             st.write(f"Basic Strength Score: {analysis['basic_strength_score']}/10")
-            
-            # Advanced zxcvbn analysis
-            st.write(f"zxcvbn Strength Score: {analysis['zxcvbn_score']}/4")
             
             # Character diversity
             st.subheader("Character Diversity")
@@ -157,12 +148,6 @@ def main():
                 st.metric("Digits", "✓" if analysis['character_stats']['digits'] else "✗")
             with col4:
                 st.metric("Symbols", "✓" if analysis['character_stats']['symbols'] else "✗")
-            
-            # zxcvbn feedback
-            if analysis['zxcvbn_feedback']['suggestions']:
-                st.warning("Suggestions:")
-                for suggestion in analysis['zxcvbn_feedback']['suggestions']:
-                    st.write(f"- {suggestion}")
             
             # Save to password history
             if st.button("Save to History", key="save_strength"):
